@@ -185,27 +185,46 @@ This approach effectively bypasses the platform limitation, allowing MMT—which
 
 For a more visual experience, you can set up [MMT-Operator](https://github.com/Montimage/mmt-operator), a web-based dashboard for MMT reports:
 
-1. Clone and install MMT-Operator:
+1. Clone and install MMT-Operator from the [official repository](https://github.com/Montimage/mmt-operator):
    ```bash
    git clone https://github.com/Montimage/mmt-operator.git
    cd mmt-operator/www
    npm install
    ```
 
-2. Install MongoDB (required for MMT-Operator):
+2. Create a MongoDB Server - version 4.4 (required for MMT-Operator):
    ```bash
-   brew tap mongodb/brew
-   brew install mongodb-community@4.4
-   brew services start mongodb-community@4.4
+   docker run -d --name mongodb44 -p 27017:27017 mongo:4.4
    ```
 
-3. Configure MMT-Operator to read your reports directory and start it:
+3. Configure MMT-Operator to read the reports from your Docker container:
+
+   Edit the `www/config.json` file to set the correct reports directory:
    ```bash
+   # Navigate to the www directory
    cd mmt-operator/www
-   node bin/www -Xfile_input.data_folder.0="$HOME/mmt-reports"
+   
+   # Edit the config.json file (using your preferred editor)
+   vim config.json
    ```
 
-4. Open your browser to `http://localhost:8080` to access the visualization dashboard
+   The most important setting is the `file_input.data_folder` array. Make sure it includes the path to where your MMT reports are stored:
+   ```json
+   "file_input": {
+     "data_folder": [
+       "/absolute/path/to/your/mmt-reports/"
+     ],
+     "delete_data": true,
+     "nb_readers": 1
+   },
+   "input_mode": "file",
+   ```
+   
+   Replace `/absolute/path/to/your/mmt-reports/` with the absolute path to your reports directory.
+
+4. Start MMT-Operator: `cd mmt-operator/www && npm start`
+5. Access the MMT-Operator web interface:
+   - Open your browser and navigate to `http://localhost:8080` (default port)
 
 ## About Montimage and MMT-on-X
 

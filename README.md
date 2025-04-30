@@ -450,12 +450,9 @@ MMT-Operator is a graphical web interface for visualizing and analyzing MMT repo
    npm install
    ```
 
-2. Install MongoDB (required for MMT-Operator):
+2. Create a MongoDB Server - version 4.4 (required for MMT-Operator):
    ```bash
-   # For macOS using Homebrew
-   brew tap mongodb/brew
-   brew install mongodb-community@4.4
-   brew services start mongodb-community@4.4
+   docker run -d --name mongodb44 -p 27017:27017 mongo:4.4
    ```
 
 3. Configure MMT-Operator to read the reports from your Docker container:
@@ -483,7 +480,8 @@ MMT-Operator is a graphical web interface for visualizing and analyzing MMT repo
    
    Replace `/absolute/path/to/your/mmt-reports/` with the absolute path to your reports directory.
 
-4. Access the MMT-Operator web interface:
+4. Start MMT-Operator: `cd mmt-operator/www && npm start`
+5. Access the MMT-Operator web interface:
    - Open your browser and navigate to `http://localhost:8080` (default port)
 
 ### Key Features of MMT-Operator
