@@ -8,6 +8,44 @@ MMT is primarily an enterprise-level network monitoring solution designed for Li
 
 If you are a developer looking to build or modify the MMT Docker image, please see the [DEVELOPER.md](DEVELOPER.md) file.
 
+## Table of Contents
+
+- [MMT on Docker](#mmt-on-docker)
+  - [Table of Contents](#table-of-contents)
+  - [What is MMT?](#what-is-mmt)
+  - [How It Works](#how-it-works)
+  - [Quick Start for macOS Users](#quick-start-for-macos-users)
+    - [Prerequisites for macOS](#prerequisites-for-macos)
+    - [Step-by-Step Instructions for macOS](#step-by-step-instructions-for-macos)
+  - [Quick Start for Windows Users](#quick-start-for-windows-users)
+    - [Prerequisites for Windows](#prerequisites-for-windows)
+    - [Step-by-Step Instructions for Windows](#step-by-step-instructions-for-windows)
+  - [Quick Start for Linux Users](#quick-start-for-linux-users)
+    - [Prerequisites for Linux](#prerequisites-for-linux)
+    - [Step-by-Step Instructions for Linux](#step-by-step-instructions-for-linux)
+  - [Advanced Usage](#advanced-usage)
+    - [Analyzing a PCAP File](#analyzing-a-pcap-file)
+    - [Using a Custom Container Name](#using-a-custom-container-name)
+    - [Using a Specific Image Version](#using-a-specific-image-version)
+  - [Troubleshooting](#troubleshooting)
+    - [No Traffic Being Captured](#no-traffic-being-captured)
+    - [Container Exits Immediately](#container-exits-immediately)
+    - [Permission Issues with Reports Directory](#permission-issues-with-reports-directory)
+  - [Troubleshooting](#troubleshooting-1)
+    - [macOS-Specific Issues](#macos-specific-issues)
+    - [Windows-Specific Issues](#windows-specific-issues)
+    - [Linux-Specific Issues](#linux-specific-issues)
+  - [Operating Modes](#operating-modes)
+  - [Understanding MMT Reports](#understanding-mmt-reports)
+    - [Security Reports](#security-reports)
+    - [Statistics Reports](#statistics-reports)
+    - [Sample Commands to View Reports](#sample-commands-to-view-reports)
+  - [Visualizing Reports with MMT-Operator](#visualizing-reports-with-mmt-operator)
+    - [Setting Up MMT-Operator](#setting-up-mmt-operator)
+    - [Key Features of MMT-Operator](#key-features-of-mmt-operator)
+  - [License](#license)
+  - [Support and Contributing](#support-and-contributing)
+
 ## What is MMT?
 
 Montimage Monitoring Tool (MMT) is a powerful enterprise-level network monitoring and analysis solution that provides:
