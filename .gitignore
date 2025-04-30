@@ -1,0 +1,15 @@
+# Reports directory
+reports/
+
+# Docker build artifacts
+*.tar
+*.tar.gz
+
+# macOS specific
+.DS_Store
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*~
