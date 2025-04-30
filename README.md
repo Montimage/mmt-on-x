@@ -137,6 +137,7 @@ graph LR
    ```bash
    ls -la ~/mmt-reports
    ```
+For a detailed explanation of the report formats and data structure, refer to the [MMT Data Format Documentation](https://github.com/Montimage/mmt-probe/blob/master/docs/data-format.md).
 
 6. **Stop monitoring** when finished:
    ```bash

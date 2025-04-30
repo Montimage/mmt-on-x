@@ -130,8 +130,7 @@ After letting MMT run for a while (capturing and analyzing your network traffic)
 ls -la ~/mmt-reports
 ```
 
-You'll see several CSV files containing various analyses of your network traffic.
-
+You'll see several CSV files containing various analyses of your network traffic. For a detailed explanation of the report formats and data structure, refer to the [MMT Data Format Documentation](https://github.com/Montimage/mmt-probe/blob/master/docs/data-format.md).
 
 ### Step 6: Stop Monitoring When Finished
 
