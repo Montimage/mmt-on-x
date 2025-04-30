@@ -380,5 +380,5 @@ This project is distributed under the terms of the license covering Montimage pr
 ## Support and Contributing
 
 For any issues, questions, or improvements:
-- Visit [Montimage website](https://www.montimage.com)
-- Contact support at support@montimage.com
+- Visit [Montimage website](https://www.montimage.eu)
+- Contact support at support@montimage.eu
