@@ -56,6 +56,111 @@ The workflow configuration is located in `.github/workflows/docker-build.yml`. Y
 - Add additional build arguments
 - Configure multi-platform builds
 
+## Publishing to Docker Hub
+
+### Step-by-Step Guide
+
+Here's a complete workflow for making changes and publishing a new image to Docker Hub:
+
+1. **Make your changes**:
+   ```bash
+   # Edit Dockerfile, mmt-entrypoint.sh, or other files as needed
+   vim Dockerfile
+   vim mmt-entrypoint.sh
+   ```
+
+2. **Test your changes locally**:
+   ```bash
+   # Build a test image
+   docker build -t montimage/mmt:test .
+   
+   # Run and test the container
+   docker run -d --name mmt-test montimage/mmt:test
+   docker logs mmt-test
+   docker exec -it mmt-test /bin/sh  # For interactive testing
+   docker stop mmt-test
+   ```
+
+3. **Commit your changes to Git**:
+   ```bash
+   # Add modified files
+   git add Dockerfile mmt-entrypoint.sh
+   
+   # Commit with a descriptive message
+   git commit -m "Description of your changes"
+   ```
+
+4. **Create a version tag** (optional but recommended):
+   ```bash
+   # Format: v1.0.0, v1.1.0, etc.
+   git tag -a v1.0.0 -m "Version 1.0.0"
+   ```
+
+5. **Push changes to GitHub**:
+   ```bash
+   # Push commits
+   git push origin main
+   
+   # Push tags if you created any
+   git push origin --tags
+   ```
+
+6. **Log in to Docker Hub**:
+   ```bash
+   docker login
+   # Enter your Docker Hub username and password when prompted
+   ```
+
+7. **Build and push the image to Docker Hub**:
+   ```bash
+   # For single architecture
+   docker build -t montimage/mmt:latest -t montimage/mmt:v1.0.0 .
+   docker push montimage/mmt:latest
+   docker push montimage/mmt:v1.0.0
+   
+   # For multi-architecture build
+   docker buildx create --name mmt-builder --use
+   docker buildx build --platform linux/amd64,linux/arm64 \
+     -t montimage/mmt:latest -t montimage/mmt:v1.0.0 \
+     --push .
+   ```
+
+8. **Verify the published image**:
+   - Visit [Docker Hub](https://hub.docker.com/) and check your repository
+   - Pull and test the image from a different machine:
+     ```bash
+     docker pull montimage/mmt:latest
+     ```
+
+### Automated Publishing to Docker Hub
+
+To set up automated builds to Docker Hub (in addition to GitHub Container Registry):
+
+1. Add Docker Hub credentials to GitHub repository secrets:
+   - Go to repository Settings → Secrets → Actions
+   - Add `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets
+
+2. Update the GitHub Actions workflow file (`.github/workflows/docker-build.yml`) to include Docker Hub:
+   ```yaml
+   - name: Log in to Docker Hub
+     uses: docker/login-action@v2
+     with:
+       username: ${{ secrets.DOCKERHUB_USERNAME }}
+       password: ${{ secrets.DOCKERHUB_TOKEN }}
+   
+   - name: Build and push
+     uses: docker/build-push-action@v4
+     with:
+       context: .
+       platforms: linux/amd64,linux/arm64
+       push: true
+       tags: |
+         montimage/mmt:latest
+         montimage/mmt:${{ steps.meta.outputs.version }}
+         ghcr.io/${{ env.IMAGE_NAME }}:latest
+         ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+   ```
+
 ## Project Structure
 
 The project consists of the following key files:

@@ -51,204 +51,241 @@ graph LR
 4. **Analysis Engine**: MMT-probe processes and analyzes the traffic
 5. **Results Directory**: Analysis reports are stored in a mounted directory on your host
 
-## Prerequisites
+## Quick Start for macOS Users
 
-Before getting started, you'll need:
+### Prerequisites for macOS
 
-- Docker installed on your system
-- tcpdump and netcat utilities for capturing network traffic
-- A network interface with traffic you want to analyze
+1. **Install Docker Desktop**:
+   - Download from [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop)
+   - Install and launch Docker Desktop
+   - Wait for Docker to start (whale icon in menu bar turns solid)
 
-## Step-by-Step Guide
+2. **Install tcpdump and netcat** using Homebrew:
+   ```bash
+   brew install tcpdump netcat
+   ```
 
-### Step 1: Install Prerequisites
+### Step-by-Step Instructions for macOS
 
-<details>
-<summary>Click to expand installation instructions</summary>
+1. **Pull the Docker image**:
+   ```bash
+   docker pull montimage/mmt:latest
+   ```
 
-#### Docker Installation
+2. **Find your network interface**:
+   ```bash
+   networksetup -listallhardwareports
+   ```
+   Look for your active interface (typically `en0` for Wi-Fi or `en1` for Ethernet)
 
-##### Linux
-```bash
-# Ubuntu/Debian
-sudo apt-get update
-sudo apt-get install docker.io
+3. **Start capturing network traffic** (keep this terminal window open):
+   ```bash
+   sudo tcpdump -i en0 -U -w - | nc -l 12345
+   ```
+   Replace `en0` with your actual interface name
 
-# Fedora/CentOS
-sudo dnf install docker
-sudo systemctl start docker
-sudo systemctl enable docker
-```
+4. **Open a new terminal window** and run the MMT container:
+   ```bash
+   # Create reports directory
+   mkdir -p ~/mmt-reports
+   
+   # Run the container
+   docker run -d --name mmt-probe --rm \
+     -v ~/mmt-reports:/opt/mmt/probe/result/report/online \
+     montimage/mmt:latest
+   ```
 
-##### macOS
-1. Download and install Docker Desktop from [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
-2. Launch Docker Desktop and follow the setup wizard
+5. **View the analysis results**:
+   ```bash
+   ls -la ~/mmt-reports
+   ```
 
-##### Windows
-1. Download and install Docker Desktop from [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
-2. Make sure WSL 2 is installed and enabled
-3. Launch Docker Desktop and follow the setup wizard
+6. **Stop monitoring** when finished:
+   ```bash
+   docker stop mmt-probe
+   ```
+   Also press <kbd>Ctrl</kbd>+<kbd>C</kbd> in the tcpdump terminal window
 
-#### tcpdump and netcat Installation
+## Quick Start for Windows Users
 
-##### Linux
-```bash
-# Ubuntu/Debian
-sudo apt-get install tcpdump netcat-openbsd
+### Prerequisites for Windows
 
-# Fedora/CentOS
-sudo dnf install tcpdump nc
-```
+1. **Install Docker Desktop**:
+   - Download from [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop)
+   - Ensure WSL 2 is installed and enabled ([WSL installation guide](https://docs.microsoft.com/en-us/windows/wsl/install))
+   - Install and launch Docker Desktop
+   - Make sure Docker is running (whale icon in system tray)
 
-##### macOS
-```bash
-# Using Homebrew
-brew install tcpdump netcat
-```
+2. **Install packet capture tools**:
+   - Download and install [Wireshark](https://www.wireshark.org/download.html)
+   - Download and install [Nmap](https://nmap.org/download.html) (includes ncat)
 
-##### Windows
-For Windows, you'll need either:
-- [Wireshark](https://www.wireshark.org/download.html) which includes tshark
-- [Nmap](https://nmap.org/download.html) which includes ncat
-- Or use tcpdump and netcat within WSL (Windows Subsystem for Linux)
-</details>
+### Step-by-Step Instructions for Windows
 
-### Step 2: Pull the MMT Docker Image
+1. **Pull the Docker image**:
+   ```powershell
+   docker pull montimage/mmt:latest
+   ```
 
-Pull the pre-built MMT Docker image from Docker Hub:
+2. **Find your network interface**:
+   ```powershell
+   Get-NetAdapter
+   ```
+   Note the name of your active network interface (e.g., "Wi-Fi" or "Ethernet")
 
-```bash
-docker pull montimage/mmt:latest
-```
+3. **Start capturing network traffic** (keep this PowerShell window open):
+   ```powershell
+   & 'C:\Program Files\Wireshark\tshark.exe' -i Wi-Fi -w - | & 'C:\Program Files\Nmap\ncat.exe' -l 12345
+   ```
+   Replace `Wi-Fi` with your actual interface name
 
-Alternatively, you can pull the image from GitHub Container Registry:
+4. **Open a new PowerShell window** and run the MMT container:
+   ```powershell
+   # Create reports directory
+   mkdir -p $HOME\mmt-reports
 
-```bash
-docker pull ghcr.io/montimage/mmt-on-x:latest
-```
+   # Run the container
+   docker run -d --name mmt-probe --rm `
+     -v "$HOME\mmt-reports:/opt/mmt/probe/result/report/online" `
+     montimage/mmt:latest
+   ```
 
-### Step 3: Start Network Traffic Capture
+5. **View the analysis results**:
+   ```powershell
+   dir $HOME\mmt-reports
+   ```
 
-Open a terminal window and start capturing network traffic with tcpdump. Keep this terminal running.
+6. **Stop monitoring** when finished:
+   ```powershell
+   docker stop mmt-probe
+   ```
+   Also press <kbd>Ctrl</kbd>+<kbd>C</kbd> in the packet capture window
 
-#### For Linux:
-```bash
-sudo tcpdump -i eth0 -U -w - | nc -l -p 12345
-```
+## Quick Start for Linux Users
 
-#### For macOS:
-```bash
-sudo tcpdump -i en0 -U -w - | nc -l 12345
-```
+### Prerequisites for Linux
 
-Replace `eth0` or `en0` with your actual network interface. To list available network interfaces:
-- On Linux: `ip link show` or `ifconfig`
-- On macOS: `networksetup -listallhardwareports` or `ifconfig`
+1. **Install Docker**:
+   ```bash
+   # Ubuntu/Debian
+   sudo apt-get update
+   sudo apt-get install docker.io
+   sudo systemctl start docker
+   sudo systemctl enable docker
+   
+   # Fedora/CentOS
+   sudo dnf install docker
+   sudo systemctl start docker
+   sudo systemctl enable docker
+   ```
 
-#### For Windows (PowerShell with Wireshark and Nmap):
-```powershell
-& 'C:\Program Files\Wireshark\tshark.exe' -i Wi-Fi -w - | & 'C:\Program Files\Nmap\ncat.exe' -l 12345
-```
+2. **Install tcpdump and netcat**:
+   ```bash
+   # Ubuntu/Debian
+   sudo apt-get install tcpdump netcat-openbsd
+   
+   # Fedora/CentOS
+   sudo dnf install tcpdump nc
+   ```
 
-### Step 4: Run the MMT Container
+### Step-by-Step Instructions for Linux
 
-Open a new terminal window and run the MMT container:
+1. **Pull the Docker image**:
+   ```bash
+   docker pull montimage/mmt:latest
+   ```
 
-```bash
-# Create a directory for reports
-mkdir -p ./mmt-reports
+2. **Find your network interface**:
+   ```bash
+   ip link show
+   ```
+   Note the name of your active network interface (e.g., "eth0" or "ens33")
 
-# Run the MMT container
-docker run -d --name mmt-probe --rm \
-  -v "$(pwd)/mmt-reports":/opt/mmt/probe/result/report/online \
-  montimage/mmt:latest
-```
+3. **Start capturing network traffic** (keep this terminal window open):
+   ```bash
+   sudo tcpdump -i eth0 -U -w - | nc -l -p 12345
+   ```
+   Replace `eth0` with your actual interface name
 
-This command:
-- Creates a container named `mmt-probe`
-- Maps a local directory `./mmt-reports` to store analysis results
-- Runs the container in the background (`-d`)
-- Automatically removes the container when it stops (`--rm`)
+4. **Open a new terminal window** and run the MMT container:
+   ```bash
+   # Create reports directory
+   mkdir -p ~/mmt-reports
+   
+   # Run the container
+   docker run -d --name mmt-probe --rm \
+     -v ~/mmt-reports:/opt/mmt/probe/result/report/online \
+     montimage/mmt:latest
+   ```
+   
+   Alternatively, on Linux you can directly monitor a network interface:
+   ```bash
+   docker run -d --name mmt-probe --rm \
+     --net=host -e HOST_INTERFACE=eth0 \
+     -v ~/mmt-reports:/opt/mmt/probe/result/report/online \
+     montimage/mmt:latest
+   ```
 
-### Step 5: View the Results
+5. **View the analysis results**:
+   ```bash
+   ls -la ~/mmt-reports
+   ```
 
-The analysis reports are saved in the `mmt-reports` directory:
-
-```bash
-# List report files
-ls -la ./mmt-reports
-```
-
-### Step 6: Stop the Container
-
-When you're done monitoring, stop the container:
-
-```bash
-docker stop mmt-probe
-```
-
-Also terminate the tcpdump process in the first terminal window by pressing <kbd>Ctrl</kbd>+<kbd>C</kbd>.
+6. **Stop monitoring** when finished:
+   ```bash
+   docker stop mmt-probe
+   ```
+   Also press <kbd>Ctrl</kbd>+<kbd>C</kbd> in the tcpdump terminal window
 
 ## Advanced Usage
 
-### Monitor a Specific Network Interface Directly
-
-If you're running on Linux, you can have the MMT container directly monitor a host network interface:
-
-```bash
-docker run -d --name mmt-probe --rm \
-  --net=host \
-  -v "$(pwd)/mmt-reports":/opt/mmt/probe/result/report/online \
-  -e HOST_INTERFACE=eth0 \
-  montimage/mmt:latest
-```
-
-Replace `eth0` with your network interface name.
-
-### Analyze a PCAP File
+### Analyzing a PCAP File
 
 You can analyze a pre-recorded PCAP file using the MMT container:
 
+**macOS/Linux:**
 ```bash
 # Create reports directory
-mkdir -p ./mmt-reports
+mkdir -p ~/mmt-reports
 
 # Run the container with a PCAP file
 docker run -d --name mmt-probe --rm \
-  -v "$(pwd)/mmt-reports":/opt/mmt/probe/result/report/online \
-  -v "$(pwd)/my-capture.pcap":/pcap/my-capture.pcap \
+  -v ~/mmt-reports:/opt/mmt/probe/result/report/online \
+  -v ~/my-capture.pcap:/pcap/my-capture.pcap \
   -e PCAP_FILE=/pcap/my-capture.pcap \
   montimage/mmt:latest
 ```
 
-Replace `my-capture.pcap` with your actual PCAP file name. This command:
-- Mounts your PCAP file into the container
-- Sets the PCAP_FILE environment variable to tell MMT to analyze this file
-- Saves analysis results to the mmt-reports directory
+**Windows:**
+```powershell
+# Create reports directory
+mkdir -p $HOME\mmt-reports
 
-### Using a Custom Reports Location
-
-Specify a different directory to store reports:
-
-```bash
-docker run -d --name mmt-probe --rm \
-  -v "/path/to/your/reports":/opt/mmt/probe/result/report/online \
+# Run the container with a PCAP file
+docker run -d --name mmt-probe --rm `
+  -v "$HOME\mmt-reports:/opt/mmt/probe/result/report/online" `
+  -v "$HOME\my-capture.pcap:/pcap/my-capture.pcap" `
+  -e PCAP_FILE=/pcap/my-capture.pcap `
   montimage/mmt:latest
 ```
+
+Replace `my-capture.pcap` with your actual PCAP file name.
 
 ### Using a Custom Container Name
 
 ```bash
+# For macOS/Linux
 docker run -d --name my-custom-mmt --rm \
-  -v "$(pwd)/mmt-reports":/opt/mmt/probe/result/report/online \
+  -v ~/mmt-reports:/opt/mmt/probe/result/report/online \
   montimage/mmt:latest
 ```
 
-### Using a Specific Version
+### Using a Specific Image Version
 
 ```bash
+# For macOS/Linux
 docker run -d --name mmt-probe --rm \
-  -v "$(pwd)/mmt-reports":/opt/mmt/probe/result/report/online \
+  -v ~/mmt-reports:/opt/mmt/probe/result/report/online \
   montimage/mmt:v1.0
 ```
 
@@ -278,13 +315,60 @@ If you encounter permission errors with the reports directory:
 sudo chown -R $USER:$USER ./mmt-reports
 ```
 
+## Troubleshooting
+
+### macOS-Specific Issues
+
+1. **Docker can't connect to host.docker.internal**:
+   - Ensure Docker Desktop is running with the latest version
+   - Try restarting Docker Desktop
+   - If still failing, use a direct IP address by running:
+     ```bash
+     ifconfig en0 | grep "inet " | awk '{print $2}'
+     ```
+     Then use this IP instead of `host.docker.internal`
+
+2. **Permission denied for tcpdump**:
+   - Make sure to run tcpdump with `sudo`
+   - If prompted for password multiple times, run:
+     ```bash
+     sudo chmod +s /usr/sbin/tcpdump
+     ```
+
+### Windows-Specific Issues
+
+1. **Container can't reach host for packet capture**:
+   - Ensure Windows Firewall allows incoming connections on port 12345
+   - Try adding WSL integration in Docker Desktop settings
+   - Use the IP address of your host instead of `host.docker.internal`:
+     ```powershell
+     ipconfig | findstr IPv4
+     ```
+
+2. **Wireshark/tshark permission issues**:
+   - Run PowerShell as Administrator
+   - Try using Wireshark GUI to capture to a file, then use the PCAP file analysis mode
+
+### Linux-Specific Issues
+
+1. **Docker permission issues**:
+   - Make sure your user is in the docker group:
+     ```bash
+     sudo usermod -aG docker $USER
+     # then logout and login again
+     ```
+
+2. **Network interface not found**:
+   - Make sure you're using the correct interface name
+   - For direct monitoring, ensure you use `--net=host`
+
 ## Operating Modes
 
 The container can operate in three modes:
 
-1. **Netcat Mode (Default)**: Captures traffic from the host machine through a netcat connection on port 12345. This is the recommended mode for most users and works across all operating systems (Windows, macOS, Linux). This cross-platform approach is what makes MMT accessible beyond its native Linux environment.
+1. **Netcat Mode (Default)**: Captures traffic from the host machine through a netcat connection on port 12345. This is the recommended mode for most users and works across all operating systems (Windows, macOS, Linux).
 
-2. **Host Network Interface Mode**: Available on Linux only, this mode directly captures traffic from a specified host network interface using the `--net=host` option. This mode represents the traditional deployment method for MMT in enterprise environments, offering maximum performance and direct hardware access. Use this when you need direct access to network interfaces or are running in a production Linux environment.
+2. **Host Network Interface Mode**: Available on Linux only, this mode directly captures traffic from a specified host network interface using the `--net=host` option. This mode represents the traditional deployment method for MMT in enterprise environments.
 
 3. **PCAP Analysis Mode**: Analyzes a pre-recorded PCAP file from your host system. This mode is useful for analyzing previously captured traffic, forensic analysis, or testing purposes.
 
